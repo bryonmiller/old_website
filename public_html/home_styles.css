@@ -1,0 +1,296 @@
+body {
+  width: 100%;
+  height: 100%;
+  background-color: #111;
+}
+
+h1 {
+  font-family: 'Oswald', sans-serif;
+  font-weight: 700;
+  line-height: 51px;
+  font-size: 52px;
+  text-transform: uppercase;
+  margin: 0 0 23px 0;
+  color: #006EFC
+}
+
+h2 {
+  font-family: 'Droid Serif', serif;
+  font-weight: 400;
+  font-style: italic;
+  font-size: 20px;
+  line-height: 23px;
+  margin: 0 0 23px 0;
+  color: #7E7E7E;
+}
+
+p {
+  font-family: 'Droid Serif', serif;
+  font-size: 15px;
+  line-height: 23px;
+  margin: 0 0 23px 0;
+  color: #7E7E7E;
+}
+
+.navbar-default {
+  font-family: Oswald, serif;
+  background-color: #111;
+  border-bottom: 1px solid #006EFC;
+  opacity: 0.9;
+}
+
+.navbar-default .navbar-nav li a:hover {
+  transition: 0.4s;
+  background-color: #006EFC;
+  color: #111;
+}
+
+.navbar a {
+  color: #7E7E7E;
+}
+
+.navbar .navbar-brand:hover {
+  transition: 0.4s;
+  background-color: #006EFC;
+  color: #111;
+}
+
+.navbar-default .navbar-toggle {
+  border-color: #006EFC;
+}
+
+.navbar-default .navbar-toggle:hover,
+.navbar-default .navbar-toggle:focus {
+  transition: 0.4s;
+  background-color: #006EFC;
+}
+
+.center {
+  text-align: center;
+}
+
+#header-box {
+  background-color: #111;
+  padding: 80px 5px 0 5px;
+  height: 960px;
+  margin: auto;
+}
+
+#header-box h1 {
+  margin: 0 0 5px 0;
+}
+
+#social {
+  padding: 20px 0 20px 0;
+}
+
+#social .btn-lg {
+  background-color: #111;
+  color: #7E7E7E;
+  border-color: #006EFC;
+  margin: 5px 4px 0 4px
+}
+
+#social .btn:hover {
+  transition: 0.4s;
+  color: #111;
+  background-color: #006EFC;
+}
+
+#home-content {
+  width: 85%;
+  border-top: 2px #7E7E7E solid;
+  padding-top: 30px;
+  margin: auto;
+  margin-top: 20px;
+}
+
+#about-box {
+  padding: 80px 5px 0 5px;
+  height: 960px;
+  width:100%;
+  margin: auto;
+  background-color: #006EFC;
+}
+
+#about-box h1 {
+  color: #FFF;
+}
+
+#about-box h2, #about-box p {
+  color: #111;
+}
+
+#about-content {
+  margin: auto;
+}
+
+#about-content p {
+  font-weight: bold;
+}
+
+#about-headshot {
+  position: relative;
+  left: 20px;
+}
+
+#headshot {
+  border-radius: 40%;
+  border: 20px #111 solid;
+  width: 300px;
+}
+
+#about-skills {
+  padding: 20px 10px 5px 10px;
+}
+
+#portfolio-box {
+  padding: 80px 5px 0 5px;
+  background-color: #111;
+  height: 1920px;
+  margin: auto;
+  width: 100%;
+}
+
+#portfolio-box h1 {
+  padding-bottom: 25px;
+}
+
+#portfolio-pieces .portfolio-item {
+  right: 0;
+  position: relative;
+  margin-bottom: 5px;
+}
+
+#portfolio-pieces .portfolio-item .portfolio-img {
+  display: block;
+  position: relative;
+  max-width: 230px;
+  margin: 0 auto;
+}
+
+#portfolio-pieces .portfolio-item .caption {
+  max-width: 400px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 5px;
+}
+
+#portfolio-pieces .portfolio-item .portfolio-img:hover {
+    transition: 0.4s;
+    box-shadow: 5px 5px 1px #7E7E7E;
+}
+
+#portfolio-pieces .portfolio-item a:hover {
+  text-decoration: none;
+}
+
+@media (min-width:767px) {
+  #portfolio-box {
+    height: 1160px;
+  }
+  #portfolio-box #portfolio-pieces .portfolio-item {
+    margin: 0 0 30px;
+  }
+}
+
+#contact-box {
+  padding: 80px 5px 0 5px;
+  background-color: #7E7E7E;
+  height: 640px;
+  margin: auto;
+  width: 100%;
+}
+
+#contact-box h1 {
+  color: #FFF;
+}
+
+#contact-box h2 {
+  color: #111;
+  font-size: 26px;
+}
+
+#contact-box #contact-buttons {
+  margin: 10px;
+}
+
+#contact-box #contact-buttons .btn {
+  margin: 5px 4px 0 4px;
+  background-color: #111;
+  color: #FFF;
+  border: 2px #111 solid;
+}
+
+#contact-box #contact-buttons a:hover{
+  transition: 0.4s;
+  background-color: #FFF;
+  color: #111;
+}
+
+#contact-box #contact-email {
+  margin-top: 40px;
+  padding-bottom: 10px;
+}
+
+#contact-box #contact-email .btn {
+  margin: auto;
+  background-color: #111;
+  color: #FFF;
+  border: 2px #111 solid;
+}
+
+#contact-box #contact-email a:hover{
+  transition: 0.4s;
+  background-color: #FFF;
+  color: #111;
+}
+
+.footer {
+    position: relative;
+    bottom: 0;
+    width: 100%;
+    height: 160px;
+    background-color: #111;
+}
+
+@media (min-width:350px) {
+  .footer {
+    height: 120px;
+  }
+}
+
+#footer-links {
+  padding-top: 20px;
+  border-top: 1px #006EFC solid;
+}
+
+#footer-links a {
+  transition: 1s;
+  color: #FFF;
+  margin: 15px 10px 0 10px;
+  padding-bottom: 0;
+}
+
+#footer-links a:hover {
+  transition: 0.9s;
+  color: #006EFC;
+  text-decoration: none;
+  font-size:26px;
+}
+
+#copyright {
+  font-size: 12px;
+}
+
+#copyright a {
+  transition: 1s;
+  color: #FFF;
+}
+
+#copyright a:hover {
+  transition: 0.9s;
+  color: #006EFC;
+  text-decoration: none;
+  font-size: 26px;
+}

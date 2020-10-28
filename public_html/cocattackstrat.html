@@ -1,0 +1,88 @@
+<!doctype html>
+<html>
+<head>
+    <title>COC Attack Strategies</title>
+
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" />
+    <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+
+    <style>
+
+    body {
+      background-color: #CCCCCC;
+    }
+
+    .headBar {
+      background-color: #CCCCCC;
+      width: 100%;
+      text-align: center;
+      left-margin:10px;
+    }
+
+    .optionsBar {
+      background-color: #CCCCCC;
+      width: 100%;
+      left-margin:10px;
+    }
+
+    .stratBox {
+      background-color: #CCCCCC;
+      width: 100%;
+      height: 500px;
+      border:2px solid #555555;
+    }
+
+    </style>
+
+</head>
+
+<body>
+<div class="container-fluid">
+  <div class="row headBar">
+    <div class="col-md-12"><h1>COC Attack Strategies</h1></div>
+  </div>
+  <div class="row optionsBar">
+    <div class="col-md-2 col-sm-4 col-xs-6"><button class="btn btn-primary btn-block" id="item1">LavaLoonion</button></div>
+    <div class="col-md-2 col-sm-4 col-xs-6"><button class="btn btn-primary btn-block" id="item2">GoWiWi</button></div>
+    <div class="col-md-2 col-sm-4 col-xs-6"><button class="btn btn-primary btn-block" id="item3">GoWiPe</button></div>
+    <div class="col-md-2 col-sm-4 col-xs-6"><button class="btn btn-primary btn-block" id="item4">HoLoWiWi</button></div>
+    <div class="col-md-2 col-sm-4 col-xs-6"><button class="btn btn-primary btn-block" id="item5">HoGoWi</button></div>
+    <div class="col-md-2 col-sm-4 col-xs-6"><button class="btn btn-primary btn-block" id="item6">Dark Barch</button></div>
+  </div>
+
+  <div class="row stratBox">
+      <div class="col-md-12 item0" style="text-align:center; padding-top:100px"><h1>To begin, click on one of the strategies above!</h1></div>
+
+      <div class="col-md-12 item1" style="display:none;">
+        <div class="row">
+          <div class="col-md-8"><h2>LavaLoonion</h2><br />
+          <p>LavaLoonion can be extremely effective if the base you are attacking is susceptible to air raid.</p></div>
+          <div class="col-md-4"><img src="http://www.onehiveclan.com/uploads/2/8/8/6/28864503/7064740_orig.jpg" class="img-responsive" /></div>
+        </div>
+
+      </div>
+      <div class="col-md-12 item2" style="display:none;"><p>Test 2</p></div>
+      <div class="col-md-12 item3" style="display:none;"><p>Test 3</p></div>
+      <div class="col-md-12 item4" style="display:none;"><p>Test 4</p></div>
+      <div class="col-md-12 item5" style="display:none;"><p>Test 5</p></div>
+      <div class="col-md-12 item6" style="display:none;"><p>Test 6</p></div>
+  </div>
+
+  <script type="text/javascript">
+
+    $(document).ready(function() {
+      $('.btn-primary').click(function() {
+        $('.stratBox').children().css("display", "none");
+        var btnId = $(this).attr('id');
+        $('.'+btnId).fadeIn('slow');
+      });
+    });
+
+  </script>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,161 @@
+#!/usr/bin/perl -w
+
+use strict ;
+
+use CGI ;
+
+my $cgi = new CGI ;
+chomp(my $cwd = <DATA>);
+
+my $action = 0 ;
+if ( $cgi->param ( "Single" ) ) {
+    $action = "Single" ;
+}
+elsif ( $cgi->param ( "Multiple(subdomains)" ) ) {
+    $action = "Subdomains" ;
+}
+elsif ( $cgi->param ( "Multiple(subdirs)" ) ) {
+    $action = "Subdirs" ;
+}
+
+sub _parse_wp_version {
+    require File::Spec;
+    my $VERSION_FILE_PATH = File::Spec->catfile($cwd, "wp-includes/version.php");
+    my $VERSION_PATTERN   = qr/\$wp_version\s*\=\s*["'](.+?)['"]/;
+    open VERSION, "<", $VERSION_FILE_PATH or return;
+    while ( my $l = <VERSION> ) {
+        if ( $l =~ $VERSION_PATTERN ) {
+            close VERSION and return $1;
+        }
+    }
+    close VERSION;
+    return;
+}
+
+if ( $action ) {
+    if ( $action ne "Single" ) {
+        require File::Spec;
+        my $CONFIG_FILE_PATH = File::Spec->catfile($cwd, "wp-config.php");
+        open CONFIG, "<", $CONFIG_FILE_PATH or die "Can't open config file for reading: $!" ;
+        my @config = <CONFIG> ;
+        close CONFIG ;
+        chmod 0666, $CONFIG_FILE_PATH;
+
+        open CONFIG, ">", $CONFIG_FILE_PATH or die "Can't open config file for writing: $!" ;
+        foreach my $line ( @config ) {
+            if ( $line =~ m/define..WP_ALLOW_MULTISITE., false.;/ ) {
+                print CONFIG "define('WP_ALLOW_MULTISITE', true);\n" ;
+            }
+            else {
+                print CONFIG "$line" ;
+            }
+        }
+        close CONFIG ;
+        chmod 0600, $CONFIG_FILE_PATH;
+
+    }
+    print $cgi->redirect ( "http://www.[* http_host *]/index.php" ) ;
+
+    unlink $0 ;
+
+} ## end if ( $action )
+
+print $cgi->header () ;
+
+my $WP_VERSION = _parse_wp_version() || '';
+if ( '[* request_path_short *]' ne '/' ) {
+
+# Attempt to identify subdomain installations
+if ('[* subdomain *]' ne '') {
+
+# I think this is a subdomain so don't prepend 'www'
+print << "EOF" ;
+<head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>WordPress &#8250; First choice </title>
+        <link rel="stylesheet" href="wp-admin/css/install.css?ver=20100228" type="text/css" />
+    <meta http-equiv="Refresh" content="5; URL=index.php">
+</head>
+<body>
+<h1 id="logo">
+        <a href="http://wordpress.org/"><img alt="WordPress" src="wp-admin/images/wordpress-logo.png" width="250" height="68" /></a>
+        <br /> Version $WP_VERSION</h1>
+    <p>You have chosen to install in a subdirectory so the Single Blog option 
+    is the only option.  You cannot select, now or later, the Multi Blog option when the install 
+    is placed in a subdirectory.</p>
+    <p>
+    This will continue automatically with Single Blog installation in 5 seconds.
+    </p>
+EOF
+
+} else {
+# The standard (non-subdomain) code
+print << "EOF" ;
+<head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>WordPress &#8250; First choice </title>
+        <link rel="stylesheet" href="wp-admin/css/install.css?ver=20100228" type="text/css" />
+    <meta http-equiv="Refresh" content="5; URL=index.php">
+</head>
+<body>
+<h1 id="logo">
+        <a href="http://wordpress.org/"><img alt="WordPress" src="wp-admin/images/wordpress-logo.png" width="250" height="68" /></a>
+        <br /> Version $WP_VERSION</h1>
+    <p>You have chosen to install in a subdirectory so the Single Blog option 
+    is the only option.  You cannot select, now or later, the Multi Blog option when the install 
+    is placed in a subdirectory.</p>
+    <p>
+    This will continue automatically with Single Blog installation in 5 seconds.
+    </p>
+EOF
+}
+    unlink $0 ;
+}
+else {
+    print << "EOF" ;
+<head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>WordPress &#8250; First choice </title>
+        <link rel="stylesheet" href="wp-admin/css/install.css?ver=20100228" type="text/css" />
+</head>
+<body>
+<h1 id="logo">
+        <a href="http://wordpress.org/"><img alt="WordPress" src="wp-admin/images/wordpress-logo.png" width="250" height="68" /></a>
+        <br /> Version $WP_VERSION
+</h1>
+<h1>Choose between Single or Multi Blog Installation</h1>
+<p>Since version 3.0 Wordpress code will support a single blog as earlier versions did,
+and now newly, multiple blogs on a single installation.  The downside is that multiple 
+blogs require considerably more administration.  So unless you know positively that
+you want multiple blogs, you are advised to choose the single blog option.  
+</p>
+With the Multiple option you can choose either to have the blogs 
+<ul>
+<li>in separate
+subdomains, e.g. blog1.example.com, blog2.example.com, etc
+<br />or
+<li>in separate subdirectories, eg example.com/blog1, example.com/blog2, etc
+</uk>
+
+</p>
+<p>
+If you choose the single blog option you can change it to the multiple blog option later 
+(how to do this is in the documentation in wp-docs see 
+<a href="wp-docs/multiple-blogs.html"
+target="-blank">wp-docs/multiple-blogs.html</a>. It will open in a new window and maybe
+you want to bookmark it now).  But once you have implemented the 
+multiple blog option you cannot revert to the single blog option, short of destroying any
+secondary blogs.</p>
+
+<form method='POST'>
+<p>Chose the type of installation you require</p>
+<input type='submit' name='Single' value='Single' />
+<input type='submit' name='Multiple(subdomains)' value='Multiple(subdomains)' />
+<input type='submit' name='Multiple(subdirs)' value='Multiple(subdirs)' />
+</form>
+</body>
+</html>
+EOF
+} ## end else [ if ( '[* request_path_short *]'...)]
+__DATA__
+[* cwd *]

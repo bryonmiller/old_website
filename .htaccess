@@ -1,0 +1,13 @@
+# Begin StackMS
+RewriteEngine On
+RewriteCond %{REQUEST_URI} stackms.php
+RewriteRule ^ - [L]
+# End StackMS
+
+
+SetEnv DEFAULT_PHP_VERSION 55
+
+#+PHPVersion
+#="php56"
+AddHandler x-httpd-php56 .php
+#-PHPVersion

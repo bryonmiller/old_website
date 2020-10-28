@@ -1,0 +1,199 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+use CGI;
+use Cwd 'getcwd';
+use Digest::MD5 ;
+die unless $ENV{HTTP_HOST};
+my $failed=0;
+my $cwd=getcwd();
+my $cgi=new CGI;
+
+#  request_path and request_path_short
+#
+# The use of $cgi->script_name has been discontinued because on some times, it
+# has a value such as http://example.com/chosen_directory/setup_script.cgi
+# and at other times a value such as /chosen_directory/setup_script.cgi.
+#
+# Instead the request_path is determined from the current working directory
+# when this program is initially run.
+# request_path has form /XXXX/ or /
+# request_path_short has form /XXXX or /
+(my $request_path_short = $cwd)=~s#^.*/public_html(/|$)#/#;
+(my $request_path = $request_path_short) .= '/';
+
+
+if ($request_path eq '//' ) {  # installing to root directory
+    $request_path = '/';
+}
+
+(my $request_path_shorter = $request_path_short) =~ s#/$##;
+
+sub mkpassword {
+	my @good_chars=('a' .. 'z', 'A' .. 'Z', 0 .. 9, '#', '^', '!', '(',
+		')', '-', '=', '_', '+', '/');
+	return join("", map {$good_chars[int rand @good_chars]} (0 .. 7));
+}
+
+# Zencart, and maybe others, require admin to be put into an unpredictable
+# installation  specific directory to make it harder for hackers to access.
+# This subroutine is much the same as mkpassword, above, except we select only
+# chars and numbers so as to avoid problems with shell globbing and htp headers.
+# Also lower 'l', upper 'O' , 0 and 1 are excluded because they can be confused.
+sub mkrandir {
+	my @good_chars=('a' .. 'k','m' .. 'z', 'A' .. 'N', 'P' .. 'Z', 2 .. 9);
+	return join("", map {$good_chars[int rand @good_chars]} (0 .. 7));
+}
+use POSIX;
+(my $sslname=(POSIX::uname())[1])=~s/\..*//;
+$sslname.=".secure-secure.co.uk";
+
+my %static_args = map {
+  chomp;
+  split(/=/, $_, 2)
+} <DATA>;
+
+my $http_host = $cgi->virtual_host;
+$http_host =~ s#^http://##;
+$http_host =~ s#^www\.##;
+
+if($static_args{http_host}) {
+  $http_host = $static_args{http_host}; ##SUPPORTSTEMP
+}
+my $password = mkpassword ;
+my $password_md5 = Digest::MD5::md5_hex($password);
+my $password2 = mkpassword ;
+my $password2_md5 = Digest::MD5::md5_hex($password2);
+my $password3 = mkpassword ;
+my $password3_md5 = Digest::MD5::md5_hex($password3);
+
+my $document_root;
+if($cwd=~m#^(.*?/(?:public_html|web/content))(?:/|$)#) {
+  $document_root = $1;
+} else {
+  $document_root = $ENV{DOCUMENT_ROOT};
+}
+
+my %config=(
+	cwd=>$cwd,
+	http_host=>$http_host,
+	request_path=>$request_path,
+	request_path_short=>$request_path_short,
+	request_path_shorter=>$request_path_shorter,
+	password=>$password,
+	password_md5=>$password_md5,
+	password2=>$password2,
+	password2_md5=>$password2_md5,
+	password3=>$password3,
+	password3_md5=>$password3_md5,
+	randir=>mkrandir,
+	user=>scalar getpwuid($>),
+  document_root => $document_root,
+  data_root => ($cwd=~m#^/home#) ? "$document_root/.." : $document_root,
+	dbuser=>$static_args{dbuser} || scalar($cgi->param("dbuser")),
+    dbhost=>$static_args{dbhost} || scalar($cgi->param("dbhost")),
+	dbpassword=>$static_args{dbpassword} || scalar($cgi->param("dbpassword")),
+ 	ssl_host=>$sslname,
+  set_php_53 => ($cwd=~m#^/home#)?"SetEnv DEFAULT_PHP_VERSION 53":"AddHandler application/x-httpd-php53 .php .php5",
+  set_php_55 => ($cwd=~m#^/home#)?"SetEnv DEFAULT_PHP_VERSION 55":"AddHandler application/x-httpd-php55 .php .php5",
+);
+
+umask(oct("022"));
+
+if(-r "_inone.tar.bz2") {
+        system("/usr/bin/bunzip2",  "_inone.tar.bz2");
+}
+
+if(-r "_inone.tar") {
+        system("/bin/tar", "xf", "_inone.tar");
+        unlink "_inone.tar";
+}
+
+#  Cannot run /usr/local/bin/grant_create_temporary_tables.sh here because user does not have read
+#  access to /root/.my.cnf.  
+#
+# if(-r ".needs-temp-tables") {
+#	system("/usr/local/bin/grant_create_temporary_tables.sh", $static_args{dbuser} || $cgi->param("dbuser"));
+#	unlink(".needs-temp-tables");
+# }
+#
+#  This functionality is done in extend:/home/heart/hostcp/public_html/install.cgi
+
+
+sub recurse_fix {
+	my $dir=shift;
+	opendir DIR, $dir or die($failed=1);
+	my @ditems=readdir DIR;
+	closedir DIR;
+	for my $update_file (grep {m/\.install-template$/} @ditems) {
+		
+		(my $output_file=$update_file)=~s/\.install-template$//;
+		unless(open IFILE, "<", "$dir/$update_file") {
+			$failed=1;
+			last;
+		}
+		my $mode=(stat IFILE)[2];
+		unless(open OFILE, ">", "$dir/$output_file") {
+			$failed=1;
+			last;
+		}
+		my $line;
+		while((!$failed) and $line=<IFILE>) {
+			$line=~s/\[\* (\w+) \*\]/$config{$1}/g;
+			print OFILE $line;
+		}
+		close OFILE;
+		close IFILE;
+		unlink "$dir/$update_file";
+		chmod $mode, "$dir/$output_file";
+	}
+	for(@ditems) {
+		next if /^\.\.?$/;
+		if($_ eq '.gitdummy') {  # delete files whose sole function is to get an empty directory 
+		                         # when using git for code control.
+		                         # see README for more explanation
+			unlink "$dir/.gitdummy";
+			next;
+		}
+		if(-d "$dir/$_") {
+			recurse_fix("$dir/$_");
+		}
+	}
+}
+
+recurse_fix($cwd);
+my $success;
+if($failed==1) {
+	die;
+}
+$success=1;
+
+# Set permissions to something safe:  e-mail 6/3/2008 - suggested by Jarrod
+#     directories 711
+# Change only the installation directory $cwd.  It is the only one the user 
+# could have set incorrectly since it must be empty for installation and all other files are
+# copied in by this program.
+
+chmod 0711, "$cwd";
+chmod 0700, "_files";
+
+if(-f "importme.sql") {
+	system("mysql -u $config{dbuser} -p$config{dbpassword} $config{dbuser} < importme.sql");
+	unlink("importme.sql");
+}
+if(-x "post-install.cgi") {
+	system("./post-install.cgi");
+	unlink("post-install.cgi");
+}
+
+print $cgi->header("text/plain");
+print "$config{password}\n";
+close(STDOUT);
+sub END {
+	unlink $0 if $success;
+}
+__DATA__
+dbhost=shareddb1a.hosting.stackcp.net
+dbpassword=R9H!7B3d-
+dbtype=mysql
+dbuser=cl42-a-wordp-e40
